@@ -1,4 +1,4 @@
-name: Deploy to Cloud Run
+﻿name: Deploy to Cloud Run
 
 on:
   push:
@@ -22,12 +22,14 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
       - name: Build and Push
         run: |
-          gcloud builds submit cloudrun-backend/ \
-            --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/photomaton-docker/backend:${{ github.sha }} \
-            --project ${{ secrets.GCP_PROJECT_ID }} \
-            --suppress-logs || true
+          docker build cloudrun-backend/ \
+            -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/photomaton-docker/backend:${{ github.sha }}
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/photomaton-docker/backend:${{ github.sha }}
 
       - name: Deploy
         run: |
@@ -36,5 +38,6 @@ jobs:
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated \
+            --service-account vertex-ai-backend@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }} \
             --project ${{ secrets.GCP_PROJECT_ID }}
