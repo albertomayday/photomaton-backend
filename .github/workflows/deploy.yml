@@ -1,4 +1,4 @@
-﻿name: Deploy to Cloud Run
+name: Deploy to Cloud Run
 
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
 
       - name: Deploy
         run: |
-          gcloud run deploy photomaton-api \
+          gcloud run deploy photomaton-backend \
             --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/photomaton-docker/backend:${{ github.sha }} \
             --region us-central1 \
             --platform managed \
