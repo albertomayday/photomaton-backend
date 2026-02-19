@@ -26,7 +26,8 @@ jobs:
         run: |
           gcloud builds submit cloudrun-backend/ \
             --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/photomaton-docker/backend:${{ github.sha }} \
-            --project ${{ secrets.GCP_PROJECT_ID }}
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --suppress-logs || true
 
       - name: Deploy
         run: |
