@@ -1,0 +1,17 @@
+
+{
+  "name": "Media Style Transfer",
+  "short_name": "Style Transfer",
+  "description": "Upload a photo or video and transform it into a different artistic style using Gemini.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1e1e1e",
+  "theme_color": "#1e1e1e",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

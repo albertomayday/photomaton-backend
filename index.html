@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Studio Pro</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e1e1e">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div id="auth-overlay" class="auth-overlay hidden">
+        <div class="auth-card">
+            <div class="auth-icon">✨</div>
+            <h2>Activar Art Studio Pro</h2>
+            <p>Las funciones avanzadas requieren vincular una clave de proyecto con facturación habilitada.</p>
+            <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" class="billing-link">Guía de Facturación</a>
+            <button id="connect-cloud-btn" class="btn generate-btn">Vincular Proyecto Pro</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Art Studio</h1>
+                <div class="header-actions">
+                    <button id="reconnect-btn" class="btn mini-btn" title="Cambiar Proyecto/Key">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="currentColor"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <p>Estudio de arte profesional impulsado por IA</p>
+        </header>
+
+        <main>
+            <div class="controls">
+                <div class="button-group">
+                    <input type="file" id="media-upload" accept="image/*,video/*" class="sr-only">
+                    <label for="media-upload" id="upload-label" class="btn primary-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                        Cargar Media
+                    </label>
+                    <button id="camera-btn" class="btn secondary-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><circle cx="12" cy="12" r="3.2"/><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+                        Cámara
+                    </button>
+                </div>
+
+                <div class="preview-area">
+                    <div id="media-preview-container" class="preview-box">
+                        <p id="preview-placeholder">Sin medios seleccionados</p>
+                        <img id="image-preview" class="hidden" alt="Vista previa">
+                        <video id="video-preview" class="hidden" playsinline muted></video>
+                    </div>
+                </div>
+
+                <div id="video-controls" class="control-section hidden">
+                    <div class="slider-header">
+                        <label for="frame-slider">Fotogramas a procesar</label>
+                        <span id="frame-count-display">10</span>
+                    </div>
+                    <input type="range" id="frame-slider" min="5" max="20" value="10" class="styled-slider">
+                    <button id="extract-frames-btn" class="btn action-btn">Extraer Fotogramas</button>
+                </div>
+
+                <div class="control-section">
+                    <label for="style-select">Estilo Artístico</label>
+                    <div class="select-wrapper">
+                        <select id="style-select">
+                            <option value="Watercolor Painting">Acuarela</option>
+                            <option value="Cyberpunk Neon">Cyberpunk</option>
+                            <option value="Oil Painting">Óleo</option>
+                            <option value="Pencil Sketch">Boceto a Lápiz</option>
+                            <option value="Anime Style">Anime / Manga</option>
+                            <option value="Pop Art">Pop Art</option>
+                            <option value="Van Gogh Starry Night">Van Gogh</option>
+                            <option value="Low Poly 3D">Low Poly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="generate-btn" class="btn generate-btn" disabled>Generar Arte</button>
+            </div>
+
+            <div class="output-panel">
+                <div id="output-container" class="output-box">
+                    <div id="loader" class="hidden">
+                        <div class="spinner"></div>
+                        <p id="loader-text">Procesando...</p>
+                    </div>
+
+                    <div id="result-wrapper" class="hidden">
+                        <img id="result-img" class="fade-img" alt="Resultado">
+                        <video id="result-video" class="hidden" controls loop autoplay playsinline></video>
+                    </div>
+
+                    <p id="output-placeholder">Tu obra aparecerá aquí</p>
+                </div>
+
+                <div id="edit-section" class="control-section hidden">
+                    <label for="edit-prompt">Refinamiento por IA (Lenguaje Natural)</label>
+                    <div class="edit-input-group">
+                        <input type="text" id="edit-prompt" placeholder="Ej: 'Añade más contraste' o 'Cambia el cielo a rojo'">
+                        <button id="apply-edit-btn" class="btn primary-btn">Aplicar</button>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <button id="download-btn" class="btn action-btn hidden">Descargar</button>
+                    <button id="export-pdf-btn" class="btn action-btn hidden">Exportar PDF</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="camera-overlay" class="hidden">
+        <video id="camera-feed" autoplay playsinline></video>
+        <div class="camera-ui">
+            <button id="close-camera-btn" class="camera-action secondary">Cancelar</button>
+            <button id="take-photo-btn" class="camera-action primary"></button>
+            <div class="spacer"></div>
+        </div>
+    </div>
+
+    <script type="module" src="index.tsx"></script>
+</body>
+</html>

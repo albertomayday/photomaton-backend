@@ -1,0 +1,7 @@
+{
+  "name": "Photomaton",
+  "description": "Upload a photo or video and transform it into a different artistic style using IA.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

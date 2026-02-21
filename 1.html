@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Paperboy — La Portería · Landing</title>
+<meta name="description" content="Paperboy — La Portería: blog minimalista de tiras cómicas diarias. Roller horizontal infinito + tira del día vertical. Proyecto PHP+SQLite (demo).">
+<style>
+  /* ===== Variables y Reset ligero (modo oscuro por defecto) ===== */
+  :root{
+    /* Paleta (modo oscuro) */
+    --bg: #05060a;
+    --muted: #0b1220;
+    --ink: #e6eef6;
+    --muted-2: #0f1724;
+    --muted-dark: rgba(255,255,255,0.04);
+    --accent: #7dd3fc;
+    --accent-contrast: #05202a;
+    --muted-text: #b7c3d6;
+    --card-bg: #07101a;
+    --card-border: rgba(255,255,255,0.04);
+    --glass: rgba(255,255,255,0.02);
+    --max-w: 1100px;
+    --gap: 20px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    --radius: 12px;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.45;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--max-w);margin:28px auto;padding:0 18px}
+  header.site-header{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid var(--muted-dark);gap:12px}
+  .brand h1{margin:0;font-size:26px;letter-spacing:1px;color:var(--accent)}
+  .brand p{margin:0;font-size:13px;color:var(--muted-text);font-style:italic}
+  nav.main-nav a{margin-left:18px;font-weight:600;color:var(--muted-text);padding:8px;border-radius:8px}
+  nav.main-nav a:hover{background:var(--glass);color:var(--ink)}
+  /* HERO */
+  .hero{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:start;padding:32px 0}
+  .hero .blk{background:linear-gradient(180deg,var(--card-bg), rgba(10,20,30,0.9));padding:22px;border:1px solid var(--card-border);border-radius:var(--radius);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+  .hero h2{margin:0 0 6px 0;font-size:28px;color:var(--ink)}
+  .hero p.lead{margin:0;color:var(--muted-text);font-size:15px}
+  .ctas{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+  .btn{background:var(--accent);color:var(--accent-contrast);padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;box-shadow:0 6px 18px rgba(125,211,252,0.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--muted-dark);box-shadow:none}
+  /* panels (cards) */
+  section.panel{margin-top:28px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));padding:18px;border:1px solid var(--card-border);border-radius:var(--radius);backdrop-filter: blur(4px)}
+  h3{margin:0 0 12px 0;font-size:18px;color:var(--ink)}
+  p{line-height:1.6;color:var(--muted-text)}
+  .columns{display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+  pre.code{background:linear-gradient(180deg,var(--muted), #08121a);padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px;color:var(--muted-text);border:1px solid var(--muted-dark)}
+  .screenshot{background:linear-gradient(180deg,var(--card-bg), rgba(10,20,30,0.85));border:1px solid var(--card-border);padding:12px;border-radius:8px}
+  .demo-svgs{display:flex;flex-direction:column;gap:12px}
+  .svg-card{border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00))}
+  /* file tree */
+  .file-tree{font-family:var(--mono);background:rgba(255,255,255,0.01);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);white-space:pre;color:var(--muted-text)}
+  /* api boxes */
+  .api-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .api-card{background:linear-gradient(180deg,var(--card-bg), rgba(10,20,30,0.9));border:1px solid var(--card-border);padding:12px;border-radius:8px;color:var(--muted-text)}
+  .copy-btn{background:transparent;color:var(--muted-text);padding:8px 10px;border-radius:8px;border:1px solid var(--muted-dark);cursor:pointer;font-size:13px}
+  footer.site-foot{display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin-top:26px;padding:18px 0;border-top:1px solid var(--muted-dark);color:var(--muted-text);font-size:14px;gap:8px}
+  /* helper classes */
+  .muted{color:var(--muted-text)}
+  code{background:rgba(255,255,255,0.02);padding:2px 6px;border-radius:6px;color:var(--accent)}
+  ul{margin-top:8px}
+  li{margin-bottom:6px;color:var(--muted-text)}
+  /* responsive - mobile-first improvements */
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr}
+    .columns{grid-template-columns:1fr}
+    .brand h1{font-size:20px}
+    .hero .blk{padding:16px}
+    .hero h2{font-size:22px}
+  }
+  @media (max-width:640px){
+    .wrap{margin:18px auto;padding:0 12px}
+    nav.main-nav a{margin-left:12px;font-size:14px}
+    .hero{gap:18px}
+    .hero .blk{border-radius:10px}
+    .screenshot{display:block}
+    .demo-svgs{gap:10px}
+    .svg-card svg{height:auto}
+  }
+  /* prefer light mode fallback (user's system) */
+  @media (prefers-color-scheme:light){
+    :root{
+      --bg:#ffffff; --muted:#f4f4f4; --ink:#111; --muted-dark:#e6e6e6;
+      --accent:#000; --accent-contrast:#fff; --muted-text:#444; --card-bg:#fff; --card-border:#eee;
+    }
+    .brand h1{color:var(--accent)}
+    .btn{box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <div class="brand">
+      <h1>Paperboy</h1>
+      <p>La Portería</p>
+    </div>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <a href="#demo">Demo</a>
+      <a href="#arquitectura">Arquitectura</a>
+      <a href="#api">API</a>
+      <a href="#install">Instalar</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="blk">
+      <h2>Paperboy — La Portería</h2>
+      <p class="lead">Blog minimalista de <strong style="color:var(--ink)">tiras cómicas diarias</strong> con formato periódico. Tira del día (vertical) y roller horizontal infinito para navegar el archivo.</p>
+
+      <div style="margin-top:12px;color:var(--muted-text)">
+        <strong style="color:var(--muted-text)">Tecnologías:</strong> PHP, SQLite, Vanilla JS, HTML/CSS (listo para GitHub Pages con versión estática de presentación).
+      </div>
+
+      <div class="ctas">
+        <button class="btn" onclick="openRepo()">Ver repositorio</button>
+        <button class="btn ghost" onclick="downloadZip()">Descargar .zip</button>
+        <button class="btn" onclick="copyCommand()">Copiar instalación</button>
+      </div>
+    </div>
+
+    <aside class="blk screenshot" aria-hidden="false">
+      <h4 style="margin:0 0 8px 0;color:var(--ink)">Vista previa</h4>
+      <div class="demo-svgs">
+        <!-- Vertical tira del día (SVG inline) -->
+        <div class="svg-card" title="Tira del día (ejemplo)">
+          <svg width="100%" viewBox="0 0 360 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tira ejemplo">
+            <rect width="100%" height="100%" fill="#071018"/>
+            <text x="16" y="32" font-size="14" fill="#9fbfdc">2025-12-03</text>
+            <rect x="12" y="48" width="336" height="160" fill="#0f1724" stroke="#123"/>
+            <text x="22" y="128" font-size="16" fill="#cfe9fb">Tira vertical — Título</text>
+            <rect x="12" y="220" width="336" height="160" fill="#0f1724" stroke="#123"/>
+            <text x="22" y="300" font-size="16" fill="#cfe9fb">Panel 2</text>
+          </svg>
+        </div>
+        <!-- Roller miniaturas -->
+        <div class="svg-card" title="Roller (miniaturas)">
+          <svg width="100%" height="80" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Roller ejemplo">
+            <rect width="100%" height="100%" fill="#071018"/>
+            <g transform="translate(10,10)">
+              <rect x="0" y="0" width="140" height="120" fill="#0f1724"/><text x="6" y="18" font-size="12" fill="#9fbfdc">2025-12-01</text>
+              <rect x="160" y="0" width="140" height="120" fill="#0f1724"/><text x="166" y="18" font-size="12" fill="#9fbfdc">2025-12-02</text>
+              <rect x="320" y="0" width="140" height="120" fill="#0f1724"/><text x="326" y="18" font-size="12" fill="#9fbfdc">2025-12-03</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Descripción -->
+  <section id="descripcion" class="panel">
+    <h3>Descripción rápida</h3>
+    <p>Paperboy es un proyecto pensado para publicar diariamente tiras cómicas con una estética tipo periódico: limpio, monocromático, y centrado en la lectura visual. El sistema propone:</p>
+    <ul>
+      <li>Tira del día en formato vertical (pieza principal de la portada).</li>
+      <li>Roller horizontal continuo que concatena las tiras anteriores (archivo visual).</li>
+      <li>API simple (PHP + SQLite) para listar y navegar por fechas.</li>
+      <li>Modo local para desarrollo: servidor PHP integrado.</li>
+    </ul>
+  </section>
+
+  <!-- Arquitectura -->
+  <section id="arquitectura" class="panel">
+    <h3>Arquitectura y estructura de archivos</h3>
+    <div class="columns">
+      <div>
+        <p>Proyecto fullstack ligero: <strong>backend PHP + SQLite</strong> para metadatos y endpoints JSON; <strong>frontend</strong> con HTML, CSS y JS para el roller y la experiencia lectura.</p>
+        <h4 style="color:var(--muted-text)">Comportamiento clave</h4>
+        <ul>
+          <li>Última tira: detectada por la DB (última fecha) o por <code>?date=</code> en la URL.</li>
+          <li>Roller: petición paginada a <code>/api/api-tiras.php?action=list</code> con lazy-loading y arrastre táctil.</li>
+          <li>Navegación anterior/siguiente mediante <code>/api/api-tiras.php?action=nextprev&date=YYYY-MM-DD</code>.</li>
+        </ul>
+      </div>
+      <aside>
+        <div class="file-tree">
+/paperboy
+├─ index.php
+├─ init_db.php
+├─ api/
+│  ├─ api-tiras.php
+│  └─ rss.php
+├─ admin/
+│  └─ upload.php
+├─ assets/
+│  ├─ css/main.css
+│  └─ js/{daily-loader.js, roller.js}
+├─ uploads/tiras/  (YYYY-MM-DD.png|svg|jpg)
+└─ data/paperboy.sqlite
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Roller: cómo funciona -->
+  <section id="roller" class="panel">
+    <h3>Roller horizontal — concepto y funcionamiento</h3>
+    <p>El roller está diseñado para:</p>
+    <ul>
+      <li>Cargar miniaturas en bloques (paginación) para no descargar todas las imágenes de golpe.</li>
+      <li>Lazy-loading mediante IntersectionObserver.</li>
+      <li>Arrastre táctil y scroll con comportamiento suave (<code>scroll-behavior: smooth</code>).</li>
+      <li>Al hacer click en una miniatura se abre la tira completa (o se carga en la parte superior).</li>
+    </ul>
+    <div class="api-grid" style="margin-top:12px">
+      <div class="api-card">
+        <strong>Lazy loading</strong>
+        <p class="muted">Carga diferida de imágenes visibles.</p>
+      </div>
+      <div class="api-card">
+        <strong>Infinite fetch</strong>
+        <p class="muted">Pedir páginas al endpoint <code>?action=list&page=N&per=40</code>.</p>
+      </div>
+      <div class="api-card">
+        <strong>Interacción</strong>
+        <p class="muted">Pointer events para arrastre, click para abrir.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- API -->
+  <section id="api" class="panel">
+    <h3>API disponible</h3>
+    <p>Endpoints básicos (devuelven JSON):</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="api-card">
+        <strong>/api/api-tiras.php?action=list</strong>
+        <p>Parámetros: <code>page</code>, <code>per</code>. Devuelve lista ordenada por fecha descendente.</p>
+        <pre class="code">GET /api/api-tiras.php?action=list&page=1&amp;per=40
+Response:
+{
+  "ok": true,
+  "data": [
+    {"id":3,"filename":"uploads/tiras/2025-12-03.svg","date":"2025-12-03","title":"Tira 2025-12-03"},
+    {"id":2,"filename":"uploads/tiras/2025-12-02.svg","date":"2025-12-02","title":"Tira 2025-12-02"}
+  ]
+}</pre>
+      </div>
+
+      <div class="api-card">
+        <strong>/api/api-tiras.php?action=item</strong>
+        <p>Parámetro: <code>date=YYYY-MM-DD</code>. Devuelve la tira de la fecha.</p>
+        <pre class="code">GET /api/api-tiras.php?action=item&amp;date=2025-12-03
+Response:
+{"ok":true,"data":{"id":3,"filename":"uploads/tiras/2025-12-03.svg","date":"2025-12-03","title":"Tira 2025-12-03"}}</pre>
+      </div>
+
+      <div class="api-card">
+        <strong>/api/api-tiras.php?action=nextprev</strong>
+        <p>Parámetro: <code>date=YYYY-MM-DD</code>. Devuelve siguiente (más reciente) y anterior (más antiguo).</p>
+        <pre class="code">GET /api/api-tiras.php?action=nextprev&amp;date=2025-12-02
+Response:
+{"ok":true,"next":{"id":3,...},"prev":{"id":1,...}}</pre>
+      </div>
+
+      <div class="api-card">
+        <strong>/api/rss.php</strong>
+        <p>Feed RSS con últimas tiras (útil para suscriptores).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instalación -->
+  <section id="install" class="panel">
+    <h3>Instalación y ejecución local (rápida)</h3>
+    <p>Clona el repositorio y arranca localmente con el servidor PHP integrado.</p>
+    <pre class="code" id="install-cmd">git clone https://github.com/albertomaydayjhondoe/paperboy.git
+cd paperboy
+php init_db.php
+php -S localhost:8000
+# luego abrir http://localhost:8000</pre>
+
+    <div style="margin-top:10px">
+      <button class="copy-btn" onclick="copyInstall()">Copiar comandos</button>
+      <button class="copy-btn" onclick="showZipCmd()">Comprimir (.zip)</button>
+    </div>
+
+    <h4 style="margin-top:16px">Notas de despliegue</h4>
+    <p>En servidor (Apache/Nginx) basta con habilitar PHP y apuntar la raíz al directorio del proyecto. La carpeta <code>uploads/tiras/</code> debe ser escribible si usas el uploader demo.</p>
+    <ul>
+      <li><strong>Apache:</strong> habilitar mod_php o PHP-FPM y configurar <code>DocumentRoot</code>.</li>
+      <li><strong>Nginx:</strong> servir con PHP-FPM, location para /api/ y archivos estáticos.</li>
+      <li><strong>Producción:</strong> proteger o eliminar <code>/admin/upload.php</code> y añadir autenticación.</li>
+    </ul>
+  </section>
+
+  <!-- Mapa web -->
+  <section id="mapa" class="panel">
+    <h3>Mapa web (sencillo)</h3>
+    <pre class="file-tree">
+HOME
+├─ Tira del día (vertical)
+├─ Roller horizontal (archivo)
+├─ /archivo/ (listing)
+├─ /sobre-mi/
+├─ /contacto/
+├─ /tira/YYYY-MM-DD
+├─ /api/api-tiras.php?action=...
+└─ /api/rss.php
+    </pre>
+  </section>
+
+  <!-- Código ejemplo: roller.js reduced snippet -->
+  <section id="snippets" class="panel">
+    <h3>Snippets (roller &amp; lazy-load)</h3>
+    <pre class="code">// fetch paginado y añadir items al roller
+async function fetchPage(page=1){
+  const res = await fetch(`/api/api-tiras.php?action=list&page=${page}&per=40`);
+  const json = await res.json();
+  json.data.forEach(addToRoller);
+}
+function addToRoller(item){
+  const el = document.createElement('div');
+  el.className='roller-item';
+  el.innerHTML = `<img data-src="${item.filename}" loading="lazy"><div>${item.date}</div>`;
+  roller.appendChild(el);
+  observer.observe(el.querySelector('img')); // IntersectionObserver
+}</pre>
+  </section>
+
+  <!-- Footer / licencia -->
+  <footer class="site-foot">
+    <div>© 2025 Paperboy — La Portería · Autor: [Tu nombre]</div>
+    <div>
+      <a href="#" onclick="openLicense()">MIT License</a> ·
+      <a href="#" onclick="openRepo()">Repositorio</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // --- Interacciones (copiar, abrir repo, descargar zip placeholder) ---
+  const GITHUB_USER = 'albertomaydayjhondoe';
+  const REPO_NAME = 'paperboy';
+  function openRepo(){
+    window.open(`https://github.com/${GITHUB_USER}/${REPO_NAME}`, '_blank');
+  }
+
+  function downloadZip(){
+    window.open(`https://github.com/${GITHUB_USER}/${REPO_NAME}/archive/refs/heads/main.zip`, '_blank');
+  }
+
+  function copyInstall(){
+    const txt = document.getElementById('install-cmd').innerText;
+    navigator.clipboard?.writeText(txt).then(()=> alert('Comandos copiados al portapapeles.'));
+  }
+
+  function copyCommand(){
+    const cmd = `git clone https://github.com/${GITHUB_USER}/${REPO_NAME}.git && cd ${REPO_NAME} && php init_db.php && php -S localhost:8000`;
+    navigator.clipboard?.writeText(cmd).then(()=> alert('Comando de instalación copiado.'));
+  }
+
+  function showZipCmd(){
+    alert('Para crear zip localmente:\nzip -r paperboy.zip paperboy/');
+  }
+
+  function openLicense(){
+    const mit = `MIT License
+
+Copyright (c) 2025 [Tu nombre]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+... (stated fully in repo)`;
+    alert(mit);
+  }
+
+  // small UX: smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click', e=>{
+      e.preventDefault();
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id) || document.querySelector(id);
+      if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  });
+</script>
+</body>
+</html>
